@@ -1,14 +1,12 @@
 from datetime import datetime
-import numpy as np
 import matplotlib.pyplot as plt
-
 import pandas as pd
 
 table = pd.read_csv('DataSet/data.csv', sep=';')
 
 def parse_float(seriesList):
     listValues = []
-    for index,value in seriesList.items():
+    for value in seriesList:
         if type(value) == float:
             listValues.append(value)
         if type(value) == str:
