@@ -33,6 +33,11 @@ table['Raj. Vento (m/s)'] = parse_float(table['Raj. Vento (m/s)'])
 table['Radiacao (KJ/m²)'] = parse_float(table['Radiacao (KJ/m²)'])
 table['Chuva (mm)'] = parse_float(table['Chuva (mm)'])
 
+table.interpolate(inplace=True)
+
+
+print(f"Quantidade Valores nulos: {table.isnull().sum().sum()}")
+
 
 def parse_for_datetime(seriesDate):
     Datalist = []
@@ -42,44 +47,102 @@ def parse_for_datetime(seriesDate):
     return Datalist
 
 table['Data'] = parse_for_datetime(table['Data'])
-mounth06 = (table[table['Data'] < datetime.strptime('01/07/2021','%d/%m/%Y')])
-mean06 =  mounth06['Temp. Ins. (C)'].mean()
-print(f"Media do Mês 06 : {mean06}")
 
-mounth07 = (table[table['Data'] < datetime.strptime('01/08/2021','%d/%m/%Y')])
-mean07 = float( mounth07['Temp. Ins. (C)'].mean()) 
-print(f"Media do Mês 07 : {mean07}")
+def rainiest_day():
+    for_day = table.groupby('Data')['Chuva (mm)'].sum()
+    largest = for_day.max()
+    for day,valor in for_day.items():
+        if valor == largest:
+            print(f"O dia que mais choveu: {datetime.date(day)} valor: {valor:.02f} mm")
 
-mounth08 = (table[table['Data'] < datetime.strptime('01/09/2021','%d/%m/%Y')])
-mean08 = float( mounth08['Temp. Ins. (C)'].mean()) 
-print(f"Media do Mês 08 : {mean08}")
+rainiest_day()
 
-mounth09 = (table[table['Data'] < datetime.strptime('01/10/2021','%d/%m/%Y')])
-mean09 = float( mounth09['Temp. Ins. (C)'].mean()) 
-print(f"Media do Mês 09 : {mean09}")
 
-mounth10 = (table[table['Data'] < datetime.strptime('01/11/2021','%d/%m/%Y')])
-mean10 = float( mounth10['Temp. Ins. (C)'].mean()) 
-print(f"Media do Mês 10 : {mean10}")
+def mean_for_months(nameColunm):
+    meanlist = []
 
-mounth11 = (table[table['Data'] < datetime.strptime('01/12/2021','%d/%m/%Y')])
-mean11 = float(mounth11['Temp. Ins. (C)'].mean()) 
-print(f"Media do Mês 06 : {mean11}")
+    mounth06 = table.loc[(table['Data'] >= datetime.strptime('01/06/2021','%d/%m/%Y')) & (table['Data'] < datetime.strptime('01/07/2021','%d/%m/%Y'))]
+    mean06 =  (mounth06[nameColunm].mean())
+    meanlist.append(mean06)
+    print(f"Media do Mês 06 : {mean06}")
 
-mounth12 = (table[table['Data'] < datetime.strptime('01/01/2022','%d/%m/%Y')])
-mean12 = float(mounth12['Temp. Ins. (C)'].mean()) 
-print(f"Media do Mês 12 : {mean12}")
+    mounth07 = table.loc[(table['Data'] >= datetime.strptime('01/07/2021','%d/%m/%Y')) & (table['Data'] < datetime.strptime('01/08/2021','%d/%m/%Y'))]
+    mean07 = ( mounth07[nameColunm].mean())
+    meanlist.append(mean07)
+    print(f"Media do Mês 07 : {mean07}")
 
-meses = [mean06,mean07,mean08,mean09,mean10,mean11,mean12]
-labels = ['06/2021','07/2021','08/2021','09/2021','10/2021','11/2021','12/2021']
+    mounth08 = table.loc[(table['Data'] >= datetime.strptime('01/08/2021','%d/%m/%Y')) & (table['Data'] < datetime.strptime('01/09/2021','%d/%m/%Y'))]
+    mean08 = ( mounth08[nameColunm].mean())
+    meanlist.append(mean08)
+    print(f"Media do Mês 08 : {mean08}")
 
-fig = plt.figure(figsize = (10, 5))
-chartBar = plt.bar(x=labels,height=meses,width=0.4,)
+    mounth09 = table.loc[(table['Data'] >= datetime.strptime('01/09/2021','%d/%m/%Y')) & (table['Data'] < datetime.strptime('01/10/2021','%d/%m/%Y'))]
+    mean09 = ( mounth09[nameColunm].mean())
+    meanlist.append(mean09)
+    print(f"Media do Mês 09 : {mean09}")
 
-plt.bar_label(chartBar, label_type="edge",fmt="%.02f")
+    mounth10 = table.loc[(table['Data'] >= datetime.strptime('01/10/2021','%d/%m/%Y')) & (table['Data'] < datetime.strptime('01/11/2021','%d/%m/%Y'))]
+    mean10 = ( mounth10[nameColunm].mean())
+    meanlist.append(mean10)
+    print(f"Media do Mês 10 : {mean10}")
 
-plt.yticks(range(0,35,15))
-plt.xlabel("Meses")
-plt.ylabel("Media das precipitações")
-plt.title("Grafico das medias das precipitações em 6 meses")
-plt.show()
+    mounth11 = table.loc[(table['Data'] >= datetime.strptime('01/11/2021','%d/%m/%Y')) & (table['Data'] < datetime.strptime('01/12/2021','%d/%m/%Y'))]
+    mean11 = (mounth11[nameColunm].mean())
+    meanlist.append(mean11)
+    print(f"Media do Mês 11 : {mean11}")
+
+    return meanlist
+
+def sum_for_months(nameColunm):
+    sumslist = []
+
+    mounth06 = table.loc[(table['Data'] >= datetime.strptime('01/06/2021','%d/%m/%Y')) & (table['Data'] < datetime.strptime('01/07/2021','%d/%m/%Y'))]
+    sum06 =  (mounth06[nameColunm].sum())
+    sumslist.append(sum06)
+    print(f"Soma do Mês 06 : {sum06}")
+
+    mounth07 = table.loc[(table['Data'] >= datetime.strptime('01/07/2021','%d/%m/%Y')) & (table['Data'] < datetime.strptime('01/08/2021','%d/%m/%Y'))]
+    sum07 = ( mounth07[nameColunm].sum())
+    sumslist.append(sum07)
+    print(f"Soma do Mês 07 : {sum07}")
+
+    mounth08 = table.loc[(table['Data'] >= datetime.strptime('01/08/2021','%d/%m/%Y')) & (table['Data'] < datetime.strptime('01/09/2021','%d/%m/%Y'))]
+    sum08 = ( mounth08[nameColunm].sum())
+    sumslist.append(sum08)
+    print(f"Soma do Mês 08 : {sum08}")
+
+    mounth09 = table.loc[(table['Data'] >= datetime.strptime('01/09/2021','%d/%m/%Y')) & (table['Data'] < datetime.strptime('01/10/2021','%d/%m/%Y'))]
+    sum09 = ( mounth09[nameColunm].sum())
+    sumslist.append(sum09)
+    print(f"Soma do Mês 09 : {sum09}")
+
+    mounth10 = table.loc[(table['Data'] >= datetime.strptime('01/10/2021','%d/%m/%Y')) & (table['Data'] < datetime.strptime('01/11/2021','%d/%m/%Y'))]
+    sum10 = ( mounth10[nameColunm].sum())
+    sumslist.append(sum10)
+    print(f"Soma do Mês 10 : {sum10}")
+
+    mounth11 = table.loc[(table['Data'] >= datetime.strptime('01/11/2021','%d/%m/%Y')) & (table['Data'] < datetime.strptime('01/12/2021','%d/%m/%Y'))]
+    sum11 = (mounth11[nameColunm].sum())
+    sumslist.append(sum11)
+    print(f"Soma do Mês 11 : {sum11}")
+
+    return sumslist
+
+means = mean_for_months('Chuva (mm)')
+sums = sum_for_months('Chuva (mm)')
+labels = ['06/2021','07/2021','08/2021','09/2021','10/2021','11/2021']
+
+def plot_bar_chart(height, labels):
+    fig = plt.figure(figsize = (10, 5))
+    chartBar = plt.bar(x=labels,height=height,width=0.4,)
+
+    plt.bar_label(chartBar, label_type="edge",fmt="%.02f (mm)")
+
+    plt.yticks(range(0,1))
+    plt.xlabel("Meses")
+    plt.ylabel("Media das precipitações")
+    plt.title("Grafico das medias das precipitações em 6 meses")
+    plt.show()
+
+# plot_bar_chart(means,labels)
+# plot_bar_chart(sums,labels)
